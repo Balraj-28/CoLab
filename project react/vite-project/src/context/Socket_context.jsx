@@ -4,7 +4,7 @@ export const socketContext = createContext();
 
 const ContextMaker = ( {children} )=>{
     const [socket , setSocket] = useState('');
-    const contextValues = [socket ];
+    const contextValues = {socket};
 
     useEffect(()=>{
    

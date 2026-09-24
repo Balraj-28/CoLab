@@ -38,7 +38,7 @@ io.use((socket , next)=>{
     }
     
 })
-
+ 
 io.on("connection" , (socket)=>{
     const socket_id = socket.id;
     const socket_name = socket.user.username;
@@ -54,7 +54,10 @@ io.on("connection" , (socket)=>{
         console.log(`${socket.user.username } has joined room ${roomCode}`);
     })
 
-    socket.on("chat" , (message)=>{socket.broadcast.emit(message)});
+    socket.on("message" , (message , roomCode)=>{if (socket.rooms.has(roomCode)) {
+        console.log("message received : "  , message)
+    socket.to(roomCode).emit("message", message);
+} });
 })
 
 

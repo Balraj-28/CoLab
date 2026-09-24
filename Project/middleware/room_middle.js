@@ -26,6 +26,23 @@ const CreateRoom = async (req,res)=>{
     res.json({success:true , roomCode:roomCode , leader:username});
 }
 
+const JoinRoom = async (req ,res)=>{
+    const {username , user_id} = req.user;
+    const {roomCode} = req.body;
 
+    const temp_room = await Room.findOne({roomCode : roomCode});
+    if(!temp_room){
+        return res.status(409).json({success:false , message : "room does not exist"});
+    }
+    const already_in = temp_room.members.find(
+    member => member.toString() === user_id
+);
+    if(already_in){
+        return res.status(409).json({success:false , message : "user already in room"});
+    }
+    
+    await Room.updateOne({roomCode : roomCode } , {$push : {members : user_id}});
+    res.json({success:true , message:"added successfully"});
+}
 
-module.exports = {CreateRoom};
+module.exports = {CreateRoom , JoinRoom};

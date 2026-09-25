@@ -6,7 +6,7 @@ import {useNavigate} from 'react-router-dom'
 function Home(){
     const navigate = useNavigate();
     const [roomId , setRoomId] = useState('');
-
+    const [rooms , setRooms] = useState([]);
     const newRoom =async ()=>{
         const token = localStorage.getItem('token');
         const res = await axios.post('http://localhost:4000/api/rooms' ,{}, {
@@ -20,7 +20,7 @@ function Home(){
         navigate(`/room/${roomCode}`);
     }   
 
-    const JoinRoom = async()=>{
+    const JoinRoom = async(roomId)=>{
         try{
         const token = localStorage.getItem('token');
         console.log(roomId);
@@ -39,11 +39,35 @@ function Home(){
     }
     }
 
+    const GetRooms = async ()=>{
+        const res = await axios.get('http://localhost:4000/api/rooms' , {
+            headers:{
+                'Authorization':  `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        setRooms(res.data);
+    }
+
+    useEffect(()=>{
+        try{
+        GetRooms();
+        }
+        catch(err){
+            console.log(err.response);
+        }
+    },[])
+
     return(
         <>
         <button onClick={newRoom}>Create room</button>
         <input placeholder="enter roomID" required value={roomId} onChange={(e)=>setRoomId(e.target.value)}></input>
-        <button onClick={JoinRoom}>Join Room</button>
+        <button onClick={()=>JoinRoom(roomId)}>Join Room</button>
+        <button onClick={()=>GetRooms()}>refresh</button>
+        {rooms.map((value , index)=>{
+            return(
+                <div key={index}>{value.leader.username}'s Room Code:{value.roomCode} <button onClick={()=>{JoinRoom(value.roomCode) } }>Join</button></div>
+            )
+        })}
         </>
     )
 }

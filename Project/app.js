@@ -22,6 +22,8 @@ const io = new Server(OurServer , {
     }
 })
 
+
+app.set("io" , io);
 io.use((socket , next)=>{
     const token = socket.handshake.auth.token;
     if(!token){
@@ -45,12 +47,20 @@ io.on("connection" , (socket)=>{
     console.log(`${socket_name} joined with id ${socket_id}`);
 
     socket.on("disconnect", (reason) => {
+        const roomCode = socket.currentRoom;
+
+        if (roomCode) {
+        socket.to(roomCode).emit("user-left", socket.user.username);
+        }
+
     console.log(`${socket_name} disconnected with id ${socket_id}`);
     console.log("Reason:", reason);
     });
 
     socket.on('room-join' , (roomCode)=>{
         socket.join(roomCode);
+        socket.to(roomCode).emit('room-joined' , socket_name);
+        socket.currentRoom = roomCode;
         console.log(`${socket.user.username } has joined room ${roomCode}`);
     })
 

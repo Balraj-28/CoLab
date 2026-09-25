@@ -66,7 +66,7 @@ io.on("connection" , (socket)=>{
 
     socket.on("message" , (message , roomCode)=>{if (socket.rooms.has(roomCode)) {
         console.log("message received : "  , message)
-    socket.to(roomCode).emit("message", message);
+    io.to(roomCode).emit("message", message);
 } });
 })
 

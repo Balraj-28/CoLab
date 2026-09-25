@@ -6,6 +6,10 @@ const Room_schema = new mongoose.Schema({
         required:true,
         unique:true
     },
+    password:{
+        type:String,
+        default:""
+    },
     leader:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

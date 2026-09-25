@@ -1,6 +1,6 @@
 const Room = require('../models/room_model');
 const User = require('../models/users_model');
-
+const bcrypt = require('bcrypt')
 const CreateRoom = async (req,res)=>{
     const {username , user_id} = req.user;
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -19,16 +19,25 @@ const CreateRoom = async (req,res)=>{
     if (!existingRoom) {
         break;
     }
+}   
+const password = req.body.password || "";
+if (!/^[A-Za-z]{0,6}$/.test(password)) {
+    return res.status(400).json({
+        success: false,
+        message: "Password must contain only letters and be at most 6 characters"
+    });
 }
-
-     await Room.create({roomCode:roomCode , leader:user_id , members:[user_id]  });
+let newPass = "";
+    if(req.body.password){ newPass = await bcrypt.hash(req.body.password , 10);}
+    
+     await Room.create({roomCode:roomCode ,password: newPass , leader:user_id , members:[user_id]  });
 
     res.json({success:true , roomCode:roomCode , leader:username});
 }
 
 const JoinRoom = async (req ,res)=>{
     const {username , user_id} = req.user;
-    const {roomCode} = req.body;
+    const {roomCode , password=""} = req.body;
 
     const temp_room = await Room.findOne({roomCode : roomCode});
     if(!temp_room){
@@ -40,7 +49,12 @@ const JoinRoom = async (req ,res)=>{
     if(already_in){
         return res.status(409).json({success:false , message : "user already in room"});
     }
-    
+    if(temp_room.password){
+    const test = await bcrypt.compare(password , temp_room.password)
+    if( !test){
+        return res.status(401).json({success:false , message : "invalid password"});
+    }
+    }
     await Room.updateOne({roomCode : roomCode } , {$push : {members : user_id}});
     res.json({success:true , message:"added successfully"});
 }
@@ -92,7 +106,7 @@ const DeleteRoom = async (req,res)=>{
 
 
 const GetRooms = async (req,res)=>{
-    const rooms = await Room.find({}).populate("leader","username");
+    const rooms = await Room.find({}).select("-password").populate("leader","username");
     res.send(rooms);
 }
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { io } from 'socket.io-client';
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import './Home.css';
+
 function Home() {
     const navigate = useNavigate();
     const [roomId, setRoomId] = useState('');
@@ -10,8 +10,8 @@ function Home() {
     const [password, setPassword] = useState("");
     const [key, setKey] = useState("");
     const newRoom = async () => {
-        const token = localStorage.getItem('token');
-        const res = await axios.post('http://localhost:4000/api/rooms', { "password": password }, {
+        const token = localStorage.getItem('token'); //description and title inputs to be made/managed during ui construction , membersLimit too
+        const res = await axios.post('http://localhost:4000/api/rooms', { "password": password , "title":"testing" , "description":"" , "membersLimit":2 }, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -49,7 +49,7 @@ function Home() {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
-        setRooms(res.data);
+        setRooms(res.data); //response has the room object for each room including roomCode , hasPassword , members , leader , createdAt , title , description , membersLimit , leader and members have been populated with username
     }
 
     useEffect(() => {
@@ -61,6 +61,9 @@ function Home() {
         }
     }, [])
 
+
+    // a backend api route has been set for /api/users/me on get which returns this res.json({success: true , username:user.username , timestamp:user.createdAt})}
+   // a backend api route has been set for /api/users/me/stats on get this returns this res.json({success: true , roomsCreated:user.roomsCreated , roomsJoined:user.roomsJoined , totalMessages:user.totalMessages})
     return (
         <>
             <label htmlFor="pass">Password</label>

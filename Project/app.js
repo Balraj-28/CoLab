@@ -14,7 +14,7 @@ app.use('/api', router_room);
 const { createServer } = require('http');
 
 const { CreateMessage } = require('./middleware/room_middle');
-
+const Room = require('./models/room_model');
 const OurServer = createServer(app);
 
 const io = new Server(OurServer, {
@@ -58,7 +58,9 @@ io.on("connection", (socket) => {
         console.log("Reason:", reason);
     });
 
-    socket.on('room-join', (roomCode) => {
+    socket.on('room-join', async (roomCode) => {
+        const room = await Room.findOne({roomCode : roomCode});
+        if(!room.members.find((m)=>m.toString() === socket.user.user_id)){return socket.emit("room-join-failed" , "not allowed in this room")}
         socket.join(roomCode);
         socket.to(roomCode).emit('room-joined', socket_name);
         socket.currentRoom = roomCode;

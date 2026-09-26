@@ -18,6 +18,18 @@ const User_Model = new mongoose.Schema({
     lowercase: true,
     trim: true
 },
+    roomsCreated:{
+        type:Number,
+        default:0,
+    },
+    roomsJoined:{
+    type:Number,
+    default:0
+    },
+    totalMessages:{
+        type:Number,
+        default:0
+    },
     createdAt:{
         type :Date,
         default:  Date.now

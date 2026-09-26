@@ -29,10 +29,11 @@ if (!/^[A-Za-z]{0,6}$/.test(password)) {
     });
 }
 let newPass = "";
-    if(req.body.password){ newPass = await bcrypt.hash(req.body.password , 10);}
+let hasPass = false;
+    if(req.body.password){ newPass = await bcrypt.hash(req.body.password , 10); hasPass=true}
     
-     await Room.create({roomCode:roomCode ,password: newPass , leader:user_id , members:[user_id]  });
-
+     await Room.create({roomCode:roomCode ,password: newPass , leader:user_id , members:[user_id] , title:req.body.title , description: req.body.description ,hasPassword: hasPass , membersLimit:req.body.membersLimit }  );
+    await User.updateOne({ _id: user_id }, { $inc: { roomsCreated: 1 } });
     res.json({success:true , roomCode:roomCode , leader:username});
 }
 
@@ -50,6 +51,9 @@ const JoinRoom = async (req ,res)=>{
     if(already_in){
         return res.status(409).json({success:false , message : "user already in room"});
     }
+    const limit = temp_room.membersLimit;
+    const members = temp_room.members;
+    if(members.length >= limit){return res.json({success:false , message:"Room is already full" })}
     if(temp_room.password){
     const test = await bcrypt.compare(password , temp_room.password)
     if( !test){
@@ -57,6 +61,8 @@ const JoinRoom = async (req ,res)=>{
     }
     }
     await Room.updateOne({roomCode : roomCode } , {$push : {members : user_id}});
+    await User.updateOne({ _id: user_id }, { $inc: { roomsJoined : 1 } });
+
     res.json({success:true , message:"added successfully"});
 }
 
@@ -108,7 +114,7 @@ const DeleteRoom = async (req,res)=>{
 
 
 const GetRooms = async (req,res)=>{
-    const rooms = await Room.find({}).select("-password").populate("leader","username");
+    const rooms = await Room.find({}).select("-password").populate("leader","username").populate("members" , "username");
     res.send(rooms);
 }
 
@@ -162,9 +168,9 @@ const CreateMessage = async (message, roomCode, user_id)=>{
     if(!user){
         throw new Error("User Not in the room");
     }
-
+    
     const chat = await Chat.create({message:message , sender:user_id , room:room._id });
-
+    await User.updateOne({ _id: user_id }, { $inc: { totalMessages: 1 } });
     return chat;
 
 }
@@ -189,4 +195,23 @@ const GetMessages = async(req,res)=>{
 }
 
 
-module.exports = {CreateRoom , JoinRoom , FindThisRoom , DeleteRoom , GetRooms , LeaveRoom , CreateMessage , GetMessages};
+
+const GetMe = async (req,res)=>{
+    const {username , user_id} = req.user;
+    const user = await User.findOne({_id : user_id});
+    if(!user){
+        throw new Error("user not found");
+    }
+    res.json({success: true , username:user.username , timestamp:user.createdAt})
+}
+
+
+const GetStats = async (req,res)=>{
+    const {username , user_id} = req.user;
+    const user = await  User.findOne({_id:user_id});
+    if(!user){
+        throw new Error("user not found");
+    }
+    res.json({success: true , roomsCreated:user.roomsCreated , roomsJoined:user.roomsJoined , totalMessages:user.totalMessages})
+}
+module.exports = {CreateRoom , JoinRoom , FindThisRoom , DeleteRoom , GetRooms , LeaveRoom , CreateMessage , GetMessages , GetMe , GetStats};

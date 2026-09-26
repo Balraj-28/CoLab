@@ -20,6 +20,28 @@ const Room_schema = new mongoose.Schema({
         ref:'User',
         required:true,
     }],
+    title:{
+        type:String,
+        required:true,
+        maxlength:200,
+        trim:true,
+    },
+    description:{
+        type:String,
+        maxlength:1000,
+        trim:true,
+        default:""
+    },
+    hasPassword:{
+        type: Boolean,
+        default: false
+    },
+    membersLimit:{
+        type:Number,
+        required:true,
+        min:1,
+        max:12
+    },
     createdAt:{
         type:Date,
         default: Date.now,

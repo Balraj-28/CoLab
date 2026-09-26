@@ -12,6 +12,7 @@ function Room (){
     const [leader , setLeader] = useState('');
     const [members , setMembers] = useState([]);
     const [currentUser , setCurrentUser] = useState('');
+    const [lastAttempted , setLastAttempted] = useState('');
     const navigate = useNavigate();
 useEffect(() => {
     const checkRoom = async () => {
@@ -39,7 +40,29 @@ useEffect(() => {
     checkRoom();
 }, [roomCode]);
 
+useEffect(()=>{
+    if (!socket || !roomExist) return;
 
+    const getMessage = async ()=>{
+
+        try{
+        const chat = await axios.get(`http://localhost:4000/api/rooms/messages/${roomCode}` , {
+            headers:{
+                'Authorization' : `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+    
+        const temp = chat.data.message.map((obj)=> `${obj.sender.username} : ${obj.message}`);
+        setChat(temp);
+    }
+    catch(err){
+        console.log(err)
+    }
+
+
+    }
+    getMessage();
+},[roomCode , roomExist , socket])
 
 useEffect(() => {
     if (!socket || !roomExist) return;
@@ -56,8 +79,8 @@ useEffect(() => {
         return [...prev, socketName];
     });
     };
-    const handleMessage = (message) => {
-        setChat(prev => [...prev, message]);
+    const handleMessage = (message , username) => {
+        setChat(prev => [...prev, `${username} : ${message}`]);
     };
     const handleUserLeft = (username) => {
     setMembers(prev => prev.filter(member => member !== username));
@@ -69,7 +92,10 @@ useEffect(() => {
     const LeaderChanged = (username)=>{
         setLeader(username);
     }
-    
+    const handleMessagefailed = (err)=>{
+        alert(err);
+        setMsg(lastAttempted);
+    }    
 
     socket.on("connect", joinRoom);
     socket.on("message", handleMessage);
@@ -77,6 +103,7 @@ useEffect(() => {
     socket.on('user-left' , handleUserLeft);
     socket.on('room-deleted' , handleRoomDelete);
     socket.on('leader-changed' , LeaderChanged);
+    socket.on('message-failed' , handleMessagefailed);
     if (socket.connected) {
         joinRoom();
     }
@@ -88,6 +115,7 @@ useEffect(() => {
         socket.off("message", handleMessage);
         socket.off("room-joined" , handleRoomJoined);
          socket.off('room-deleted' , handleRoomDelete);
+         socket.off('message-failed', handleMessagefailed);
     };
 
 }, [socket, roomCode, roomExist]);
@@ -95,16 +123,12 @@ useEffect(() => {
     
 
     const Send = ()=>{
-    console.log("SOCKET:", socket);
-    console.log("MESSAGE:", msg);
-    console.log("ROOM:", roomCode);
-
-   
-
+    
+    if (!msg.trim()) return;
     socket.emit("message", msg, roomCode);
 
     console.log("MESSAGE EMITTED");
-
+    setLastAttempted(msg);
     setMsg("");
         
     }
@@ -122,7 +146,7 @@ useEffect(() => {
         }
     }
 
-    const Leave = async(req,res)=>{
+    const Leave = async()=>{
         try{
             const res = await axios.post(`http://localhost:4000/api/rooms/leave/${roomCode}` , {} , {
                 headers:{

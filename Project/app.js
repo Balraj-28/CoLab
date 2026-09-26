@@ -1,6 +1,6 @@
 const express = require('express');
 require('dotenv').config();
-const {Server} = require('socket.io')
+const { Server } = require('socket.io')
 const cors = require('cors');
 const app = express();
 app.use(express.json());
@@ -9,39 +9,40 @@ app.use(cors());
 const router_room = require('./routers/room_router');
 const jwt = require('jsonwebtoken')
 const router = require('./routers/login_router');
-app.use('/' , router);
-app.use('/api' , router_room);
-const {createServer} = require('http');
+app.use('/', router);
+app.use('/api', router_room);
+const { createServer } = require('http');
 
+const { CreateMessage } = require('./middleware/room_middle');
 
 const OurServer = createServer(app);
 
-const io = new Server(OurServer , {
-    cors : {
-        origin : "http://localhost:5173"
+const io = new Server(OurServer, {
+    cors: {
+        origin: "http://localhost:5173"
     }
 })
 
 
-app.set("io" , io);
-io.use((socket , next)=>{
+app.set("io", io);
+io.use((socket, next) => {
     const token = socket.handshake.auth.token;
-    if(!token){
+    if (!token) {
         return next(new Error("Authentication token missing"));
     }
 
-    try{
-        const decoded = jwt.verify(token , process.env.JWT_SIGN);
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SIGN);
         socket.user = decoded;
         next();
     }
-    catch(err){
+    catch (err) {
         return next(new Error("Invalid Token"));
     }
-    
+
 })
- 
-io.on("connection" , (socket)=>{
+
+io.on("connection", (socket) => {
     const socket_id = socket.id;
     const socket_name = socket.user.username;
     console.log(`${socket_name} joined with id ${socket_id}`);
@@ -50,39 +51,54 @@ io.on("connection" , (socket)=>{
         const roomCode = socket.currentRoom;
 
         if (roomCode) {
-        socket.to(roomCode).emit("user-left", socket.user.username);
+            socket.to(roomCode).emit("user-left", socket.user.username);
         }
 
-    console.log(`${socket_name} disconnected with id ${socket_id}`);
-    console.log("Reason:", reason);
+        console.log(`${socket_name} disconnected with id ${socket_id}`);
+        console.log("Reason:", reason);
     });
 
-    socket.on('room-join' , (roomCode)=>{
+    socket.on('room-join', (roomCode) => {
         socket.join(roomCode);
-        socket.to(roomCode).emit('room-joined' , socket_name);
+        socket.to(roomCode).emit('room-joined', socket_name);
         socket.currentRoom = roomCode;
-        console.log(`${socket.user.username } has joined room ${roomCode}`);
+        console.log(`${socket.user.username} has joined room ${roomCode}`);
     })
 
-    socket.on("message" , (message , roomCode)=>{if (socket.rooms.has(roomCode)) {
-        console.log("message received : "  , message)
-    io.to(roomCode).emit("message", message);
-} });
+    socket.on("message", async (message, roomCode) => {
+        if (!message || !message.trim()) return;
+        if (socket.rooms.has(roomCode)) {
+            try {
+                console.log("message recieved : " , message);
+                const savedMessage = await CreateMessage(
+                    message,
+                    roomCode,
+                    socket.user.user_id
+                );
+
+                io.to(roomCode).emit("message", message , socket.user.username);
+
+            } catch (err) {
+            socket.emit("message-failed", "Could not send message, try again");
+             console.log(err);   
+            }
+        }
+    });
 })
 
 
 
-const start  = async ()=>{
-    try{
-    await connectDB(process.env.MONGO_URI); 
-    console.log("database connected");
-    OurServer.listen(4000 , ()=>{
-    console.log("server online");
+const start = async () => {
+    try {
+        await connectDB(process.env.MONGO_URI);
+        console.log("database connected");
+        OurServer.listen(4000, () => {
+            console.log("server online");
+        }
+        )
+    } catch (err) {
+        console.log(err);
     }
-)  
-} catch(err){
-    console.log(err);
-}
 
 }
 

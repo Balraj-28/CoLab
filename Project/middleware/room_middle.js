@@ -1,5 +1,6 @@
 const Room = require('../models/room_model');
 const User = require('../models/users_model');
+const Chat = require('../models/room_chat_model');
 const bcrypt = require('bcrypt')
 const CreateRoom = async (req,res)=>{
     const {username , user_id} = req.user;
@@ -97,7 +98,8 @@ const DeleteRoom = async (req,res)=>{
     if(temp.deletedCount === 1){
         const io = req.app.get("io");
         io.to(roomCode).emit("room-deleted");
-        return res.send("room deleted");
+        await  Chat.deleteMany({room : room._id})
+        return res.send("room and chat deleted");
     }
     return res.status(500).send("room was not deleted");
 
@@ -146,4 +148,45 @@ const LeaveRoom = async (req,res)=>{
 }
     return res.send("leaved successfully");
 }
-module.exports = {CreateRoom , JoinRoom , FindThisRoom , DeleteRoom , GetRooms , LeaveRoom};
+
+
+
+const CreateMessage = async (message, roomCode, user_id)=>{
+    
+
+    const room = await Room.findOne({roomCode : roomCode});
+    if(!room){
+        throw new Error("room not found");
+    }
+    const user = room.members.find(m=> m.toString() === user_id );
+    if(!user){
+        throw new Error("User Not in the room");
+    }
+
+    const chat = await Chat.create({message:message , sender:user_id , room:room._id });
+
+    return chat;
+
+}
+
+
+const GetMessages = async(req,res)=>{
+    const {user_id} = req.user;
+    const roomCode = req.params.roomCode;
+    const room = await Room.findOne({roomCode : roomCode});
+    if(!room){
+        throw new Error("room not found");
+    }
+    const user = room.members.find(m=> m.toString() === user_id );
+    if(!user){
+        throw new Error("User Not in the room");
+    }
+
+    const roomId = room._id;
+    const chat = await Chat.find({room : roomId}).populate("sender", "username").sort({ time: 1 });
+
+    res.json({success:true , message : chat});
+}
+
+
+module.exports = {CreateRoom , JoinRoom , FindThisRoom , DeleteRoom , GetRooms , LeaveRoom , CreateMessage , GetMessages};

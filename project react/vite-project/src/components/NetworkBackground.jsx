@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-function NetworkBackground() {
+function NetworkBackground({ className = "fixed inset-0 z-0" }) {
     const canvasRef = useRef(null);
 
     useEffect(() => {
@@ -86,7 +86,7 @@ function NetworkBackground() {
         };
     }, []);
 
-    return <canvas id="mesh" ref={canvasRef}></canvas>;
+    return <canvas className={className} ref={canvasRef}></canvas>;
 }
 
 export default NetworkBackground;

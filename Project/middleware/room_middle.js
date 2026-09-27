@@ -214,4 +214,9 @@ const GetStats = async (req,res)=>{
     }
     res.json({success: true , roomsCreated:user.roomsCreated , roomsJoined:user.roomsJoined , totalMessages:user.totalMessages})
 }
-module.exports = {CreateRoom , JoinRoom , FindThisRoom , DeleteRoom , GetRooms , LeaveRoom , CreateMessage , GetMessages , GetMe , GetStats};
+
+const RecentRooms = async (req,res)=>{
+    const room = await Room.find({}).sort({createdAt : -1}).limit(10).populate("leader", "username");
+    res.send({success:true , message : room});
+}
+module.exports = {CreateRoom , JoinRoom , FindThisRoom , DeleteRoom , GetRooms , LeaveRoom , CreateMessage , GetMessages , GetMe , GetStats , RecentRooms};

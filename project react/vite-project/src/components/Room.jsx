@@ -13,6 +13,7 @@ function Room (){
     const [members , setMembers] = useState([]);
     const [currentUser , setCurrentUser] = useState('');
     const [lastAttempted , setLastAttempted] = useState('');
+    const [error , SetError ] = useState('');
     const navigate = useNavigate();
 useEffect(() => {
     const checkRoom = async () => {
@@ -34,6 +35,7 @@ useEffect(() => {
             }
         } catch (err) {
             setRoomExist(false);
+            SetError(err.response?.data?.message);
         }
     };
 
@@ -174,7 +176,7 @@ useEffect(() => {
         {chat.map((value , index)=> <div key={index}>{value}</div>)} 
         
        
-        </> : <h1>Room Does Not exist</h1>}
+        </> : <h1>{error}</h1>}
 
         
         </>

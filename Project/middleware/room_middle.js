@@ -80,6 +80,10 @@ const FindThisRoom = async(req,res)=>{
     if(!room){
         return res.status(400).json({success:false , message : "room does not exist"});
     }
+    const temp = room.members.find(m => m._id.toString() === req.user.user_id);
+    if(!temp){
+        return res.status(400).json({success:false , message : "Unauthorized action"});
+    }
     return res.json({success:true , message:"room found" , room  , currentUser });
 }
 

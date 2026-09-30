@@ -40,7 +40,7 @@ const Room_schema = new mongoose.Schema({
         type:Number,
         required:true,
         min:1,
-        max:12
+        max:40
     },
     createdAt:{
         type:Date,

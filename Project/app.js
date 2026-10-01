@@ -9,7 +9,7 @@ app.use(cors());
 const router_room = require('./routers/room_router');
 const jwt = require('jsonwebtoken')
 const router = require('./routers/login_router');
-app.use('/', router);
+app.use('/api', router);
 app.use('/api', router_room);
 const { createServer } = require('http');
 
@@ -19,7 +19,7 @@ const OurServer = createServer(app);
 
 const io = new Server(OurServer, {
     cors: {
-        origin: "http://localhost:5173"
+        origin: true
     }
 })
 
@@ -86,6 +86,12 @@ io.on("connection", (socket) => {
             }
         }
     });
+
+    socket.on('draw' , ({strokeId , points , roomCode})=>{
+            if(!socket.rooms.has(roomCode)){return};
+
+            socket.to(roomCode).emit('draw' , {strokeId:strokeId , points:points });
+    })
 })
 
 
@@ -94,7 +100,7 @@ const start = async () => {
     try {
         await connectDB(process.env.MONGO_URI);
         console.log("database connected");
-        OurServer.listen(4000, () => {
+        OurServer.listen(4000,'0.0.0.0', () => {
             console.log("server online");
         }
         )

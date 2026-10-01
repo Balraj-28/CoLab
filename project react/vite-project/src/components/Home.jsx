@@ -73,7 +73,7 @@ function Home() {
 
     const newRoom = async () => {
         const token = localStorage.getItem('token');
-        const res = await axios.post('http://localhost:4000/api/rooms', {
+        const res = await axios.post('/api/rooms', {
             password: password,
             title: title || "Untitled room",
             description: description,
@@ -93,7 +93,7 @@ function Home() {
     const JoinRoom = async (roomId) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:4000/api/rooms/join', { roomCode: roomId, password: key }, {
+            const res = await axios.post('/api/rooms/join', { roomCode: roomId, password: key }, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.data.success === true) {
@@ -137,7 +137,7 @@ function Home() {
     }
 
     const GetRooms = async () => {
-        const res = await axios.get('http://localhost:4000/api/rooms', {
+        const res = await axios.get('/api/rooms', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         const sorted = [...res.data].sort((a, b) => b.members.length - a.members.length);
@@ -147,14 +147,14 @@ function Home() {
     }
 
     const GetMe = async () => {
-        const res = await axios.get('http://localhost:4000/api/users/me', {
+        const res = await axios.get('/api/users/me', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         setMe(res.data);
     }
 
     const GetStats = async () => {
-        const res = await axios.get('http://localhost:4000/api/users/me/stats', {
+        const res = await axios.get('/api/users/me/stats', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         setStats(res.data);

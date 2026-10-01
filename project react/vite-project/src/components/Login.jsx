@@ -24,7 +24,7 @@ function Login() {
         if(isRegistering){
             try{
             
-            const res = await axios.post("http://localhost:4000/register" , {"username" : userName , "email":email , "password":password})
+            const res = await axios.post("/api/register" , {"username" : userName , "email":email , "password":password})
             if(res.data.success){
                 alert("user created");
                 SetEmail("");
@@ -40,7 +40,7 @@ function Login() {
         }
         else{
             try{
-            const res = await axios.post("http://localhost:4000/login" , {"username" : userName , "password" : password});
+            const res = await axios.post("/api/login" , {"username" : userName , "password" : password});
             if(res.data.success){
                 const token = res.data.token;
                 localStorage.setItem("token" , token);

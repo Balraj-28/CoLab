@@ -8,7 +8,7 @@ const ContextMaker = ( {children} )=>{
 
     useEffect(()=>{
    
-    const temp  = io('http://localhost:4000'  , {
+    const temp  = io('/'  , {
         auth:{
             token : localStorage.getItem('token')
         }

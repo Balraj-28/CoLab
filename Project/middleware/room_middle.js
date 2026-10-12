@@ -128,7 +128,7 @@ const LeaveRoom = async (req,res)=>{
     const user_id = req.user.user_id;
     const username = req.user.username;
     const room = await Room.findOne({roomCode : roomCode});
-     if (!room) throw new NotFoundError('Room not found');
+     if (!room) throw new Error('Room not found');
 
     const temp = room.members.find((m)=>m.toString() === user_id)
     if(!temp){

@@ -223,7 +223,7 @@ function Home() {
 
             <motion.div className="fixed top-0 left-0 h-[2px] bg-[#e85f32] z-[100] origin-left w-full" style={{ scaleX: progress }} />
 
-            {/* nav */}
+        
             <nav className="h-[72px] px-6 md:px-[5vw] flex items-center justify-between border-b border-[#cfc8bc] sticky top-0 z-50 bg-[#f1eee6]/95">
                 <span className="flex items-center gap-2 font-extrabold tracking-tight text-xl">
                     <span className="w-[25px] h-[25px] bg-[#20212b] text-[#d9c34a] flex items-center justify-center text-[13px]">+</span>
@@ -243,7 +243,7 @@ function Home() {
                 </div>
             </nav>
 
-            {/* hero */}
+           
             <section className="max-w-[1400px] mx-auto min-h-[600px] md:min-h-[720px] px-6 md:px-[5vw] py-16 md:py-[90px] grid md:grid-cols-[1.25fr_0.75fr] gap-10 relative">
                 <Reveal className="relative z-[2]">
                     <div className="flex items-center gap-3 mb-7 flex-wrap">
@@ -259,7 +259,7 @@ function Home() {
                         CoLab gives a group one room to talk, share and keep the conversation around for later. No workspace maze. Just the people and the thing they're working on.
                     </p>
                     <div className="mt-6 ml-1 flex flex-wrap gap-2.5">
-                        <button onClick={() => setShowCreateModal(true)} className="px-5 py-3 bg-[#20212b] text-white text-xs hover:-translate-y-0.5 transition-transform">+ Create a room</button>
+                        <button onClick={() => setShowCreateModal(true)} className="px-5 py-3 bg-[#20212b] text-white text-xs hover:-translate-y-0.5 transition-transform cursor-pointer">+ Create a room</button>
                         <a href="#rooms" className="px-5 py-3 border border-[#20212b] text-xs hover:-translate-y-0.5 transition-transform inline-block">→ Join a room</a>
                     </div>
                     <div className="mt-4 ml-1 flex items-center gap-2 border border-[#cfc8bc] bg-white/40 px-3 py-2 max-w-[340px]">
@@ -274,7 +274,7 @@ function Home() {
                     </div>
                 </Reveal>
 
-                {/* simple room snapshot — shows the core idea without pretending to be the real room UI */}
+               
                 <Reveal delay={0.1} className="relative min-h-[380px] md:min-h-[540px]">
                     <div className="absolute right-0 md:right-[3%] top-6 md:top-[50px] w-full max-w-[470px] h-[400px] md:h-[455px] border border-[#20212b] bg-[#ebe6dc] p-5 md:p-7" style={{ transform: 'rotate(1deg)' }}>
                         <div className="flex items-center justify-between border-b border-[#cfc8bc] pb-4">
@@ -285,7 +285,7 @@ function Home() {
                         </div>
 
                         <div className="mt-5 grid grid-cols-[1.25fr_0.75fr] gap-4 h-[285px]">
-                            {/* The shared board is deliberately the main visual. */}
+                           
                             <div className="border border-[#cfc8bc] bg-[#20212b] p-4 relative overflow-hidden">
                                 <div className={`${mono} text-[8px] text-[#a9a6a0]`}>SHARED BOARD</div>
                                 <div className={`${serif} text-[26px] text-[#f0ece3] mt-8 leading-none`}>
@@ -306,7 +306,7 @@ function Home() {
                                 </div>
                             </div>
 
-                            {/* Chat is intentionally secondary. */}
+                          
                             <div className="border border-[#cfc8bc] bg-[#f8f5ed] p-3 relative overflow-hidden">
                                 <div className={`${mono} text-[8px] text-[#6e6c68] mb-4`}>CHAT</div>
                                 <div className="space-y-3">
@@ -336,7 +336,7 @@ function Home() {
                 </Reveal>
             </section>
 
-            {/* rooms */}
+           
             <section id="rooms" className="max-w-[1250px] mx-auto px-6 md:px-[5vw] py-20 md:py-[100px]">
                 <Reveal className="flex items-baseline gap-4 border-t border-[#20212b] pt-3.5 mb-10">
                     <span className={`${mono} text-[10px] font-bold text-[#e85f32]`}>01</span>
@@ -368,7 +368,7 @@ function Home() {
                 <Pager page={openPage} setPage={setOpenPage} count={openPages} />
             </section>
 
-            {/* features (dark) */}
+           
             <section id="features" className="bg-[#20212b] text-[#eee] relative overflow-hidden">
                 <div className="max-w-[1250px] mx-auto px-6 md:px-[5vw] py-24 md:py-[120px]">
                     <Reveal className="grid md:grid-cols-[1fr_0.8fr] gap-14 items-end mb-16">
@@ -402,7 +402,7 @@ function Home() {
                                     <div className={`${mono} text-[9px] bg-[#f0ece3] text-[#20212b] px-2 py-1`}>done</div>
                                 </div>
 
-                                {/* Presence stays physically attached to the board. */}
+                                
                                 <div className="absolute right-5 bottom-5 flex items-center gap-2">
                                     <span className={`${mono} text-[8px] text-[#d9c34a]`}>rhea is editing</span>
                                     <span className="block w-3 h-3 rounded-full bg-[#d9c34a] border-2 border-[#292a35]" />
@@ -450,7 +450,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* how it works — now a real accordion */}
+            
             <section id="how" className="max-w-[1250px] mx-auto px-6 md:px-[5vw] py-20 md:py-[100px]">
                 <Reveal className="flex items-baseline gap-4 border-t border-[#20212b] pt-3.5 mb-10">
                     <span className={`${mono} text-[10px] font-bold text-[#e85f32]`}>02</span>
@@ -499,7 +499,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* your activity — real backend data */}
+       
             <section className="max-w-[1250px] mx-auto px-6 md:px-[5vw] pb-10">
                 <Reveal className="flex items-baseline gap-4 border-t border-[#20212b] pt-3.5 mb-10">
                     <span className={`${mono} text-[10px] font-bold text-[#e85f32]`}>03</span>
@@ -521,7 +521,7 @@ function Home() {
                 </Reveal>
             </section>
 
-            {/* CTA */}
+          
             <section className="bg-[#d9c34a] py-24 md:py-[120px] px-6 text-center">
                 <Reveal>
                     <h2 className={`${serif} font-normal leading-[0.85] tracking-[-0.06em]`} style={{ fontSize: 'clamp(3rem,8vw,6.5rem)' }}>
@@ -534,7 +534,7 @@ function Home() {
                 </Reveal>
             </section>
 
-            {/* create room modal */}
+            
             {showCreateModal && (
                 <div onClick={() => setShowCreateModal(false)} className="fixed inset-0 z-50 bg-[#20212b]/50 flex items-center justify-center p-5">
                     <motion.div
@@ -564,7 +564,7 @@ function Home() {
                 </div>
             )}
 
-            {/* join password modal */}
+       
             {showJoinModal && (
                 <div onClick={() => setShowJoinModal(false)} className="fixed inset-0 z-50 bg-[#20212b]/50 flex items-center justify-center p-5">
                     <motion.div

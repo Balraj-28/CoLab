@@ -103,33 +103,21 @@ io.on("connection", (socket) => {
 
     socket.on("room-join", async (roomCode) => {
 
-        const room = await Room.findOne({
-            roomCode: roomCode
-        });
-
-        if (
-            !room.members.find(
-                (m) => m.toString() === socket.user.user_id
-            )
-        ) {
-            return socket.emit(
-                "room-join-failed",
-                "not allowed in this room"
+        try {
+            const room = await Room.findOne({ roomCode });
+            if (!room) return socket.emit("room-join-failed", "room not found");
+            if (!room.members.some((m) => m.toString() === socket.user.user_id)) {
+                return socket.emit("room-join-failed", "not allowed in this room");
+            }
+            socket.join(roomCode);
+            socket.currentRoom = roomCode;
+            socket.to(roomCode).emit("room-joined", socket_name);
+            console.log(
+                `${socket.user.username} has joined room ${roomCode}`
             );
-        }
+        } catch (err) { console.log(err); }
 
-        socket.join(roomCode);
 
-        socket.currentRoom = roomCode;
-
-        socket.to(roomCode).emit(
-            "room-joined",
-            socket_name
-        );
-
-        console.log(
-            `${socket.user.username} has joined room ${roomCode}`
-        );
     });
 
 

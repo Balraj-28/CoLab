@@ -5,18 +5,43 @@ import Login from './components/Login'
 import Home from './components/Home'
 import ContextMaker from './context/Socket_context'
 import Room from './components/Room'
-import { useContext } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+
+function Check({children}){
+  const [isChecking, setIsChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    axios.get('/api/users/me')
+      .then(() => {
+        if (isMounted) setIsAuthenticated(true);
+      })
+      .catch(() => {
+        if (isMounted) setIsAuthenticated(false);
+      })
+      .finally(() => {
+        if (isMounted) setIsChecking(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if(isChecking){
+    return null;
+  }
+
+  if(!isAuthenticated){
+    return <Navigate to={"/login"} replace />
+  }
+  return children;
+}
 
 function App() {
-  function Check({children}){
-    const token = localStorage.getItem("token");
-    if(!token){
-      return <Navigate to={"/login"} replace />
-    }
-    else{
-      return children;
-    }
-  }
 
  
   return (

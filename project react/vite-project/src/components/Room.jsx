@@ -67,9 +67,7 @@ function Room() {
     useEffect(() => {
         const checkRoom = async () => {
             try {
-                const reply = await axios.get(`/api/rooms/${roomCode}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                });
+                const reply = await axios.get(`/api/rooms/${roomCode}`);
 
                 if (reply.data.success) {
                     setRoomExist(true);
@@ -93,9 +91,7 @@ function Room() {
 
         const getMessage = async () => {
             try {
-                const reply = await axios.get(`/api/rooms/messages/${roomCode}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                });
+                const reply = await axios.get(`/api/rooms/messages/${roomCode}`);
 
                 const temp = reply.data.message.map(
                     (obj) => `${obj.sender.username} : ${obj.message}`
@@ -335,9 +331,7 @@ function Room() {
 
     const sendDelete = async () => {
         try {
-            await axios.delete(`/api/rooms/delete/${roomCode}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            });
+            await axios.delete(`/api/rooms/delete/${roomCode}`);
         } catch (err) {
             console.log(err);
         }
@@ -345,9 +339,7 @@ function Room() {
 
     const Leave = async () => {
         try {
-            await axios.post(`/api/rooms/leave/${roomCode}`, {}, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            });
+            await axios.post(`/api/rooms/leave/${roomCode}`);
             navigate("/home", { replace: true });
         } catch (err) {
             console.log(err.response);

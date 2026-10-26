@@ -8,11 +8,8 @@ const ContextMaker = ( {children} )=>{
 
     useEffect(()=>{
    
-    const temp  = io('/'  , {
-        auth:{
-            token : localStorage.getItem('token')
-        }
-
+    const temp = io('/', {
+        withCredentials: true
     })
     setSocket(temp);
     

@@ -1,14 +1,11 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const { AUTH_COOKIE_NAME } = require('./auth_cookie');
 
 const auth = async (req,res,next)=>{
-    const head = req.headers.authorization;
-    if(!head ){
-        return res.status(401).json({success : false , message : "Unauthorized action (no header provided)"});
-    }
-    const token = head.split(' ')[1];
+    const token = req.cookies[AUTH_COOKIE_NAME];
     if(!token){
-        return res.status(401).json({success : false , message : "Unauthorized action (no token found)"});
+        return res.status(401).json({success : false , message : "Unauthorized action (no cookie found)"});
     }
     try{
     const decoded = jwt.verify(token , process.env.JWT_SIGN );

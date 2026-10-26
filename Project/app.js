@@ -2,12 +2,33 @@ const express = require('express');
 require('dotenv').config();
 const { Server } = require('socket.io');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 const connectDB = require('./db-connect/connect');
-app.use(cors());
+const { isAllowedOrigin, validateCookieRequestOrigin } = require('./middleware/origin_validation');
+const { AUTH_COOKIE_NAME } = require('./middleware/auth_cookie');
+
+const corsOptions = {
+    origin(origin, callback) {
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        if (isAllowedOrigin(origin)) {
+            return callback(null, true);
+        }
+
+        callback(new Error('Origin not allowed by CORS'));
+    },
+    credentials: true
+};
+
+app.use(cors(corsOptions));
+app.use(validateCookieRequestOrigin);
 
 const router_room = require('./routers/room_router');
 const jwt = require('jsonwebtoken');
@@ -24,15 +45,15 @@ const Room = require('./models/room_model');
 const OurServer = createServer(app);
 
 const io = new Server(OurServer, {
-    cors: {
-        origin: true
-    }
+    cors: corsOptions
 });
+
+io.engine.use(cookieParser());
 
 app.set("io", io);
 
 io.use((socket, next) => {
-    const token = socket.handshake.auth.token;
+    const token = socket.request.cookies?.[AUTH_COOKIE_NAME];
 
     if (!token) {
         return next(new Error("Authentication token missing"));

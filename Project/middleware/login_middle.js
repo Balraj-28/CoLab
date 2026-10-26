@@ -3,6 +3,7 @@ const User = require('../models/users_model');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const {isEmail} = require('validator');
+const { AUTH_COOKIE_NAME, authCookieOptions, clearAuthCookieOptions } = require('./auth_cookie');
 const LoginCheck = async (req , res)=>{
     console.log("someone is trying to login");
     const {username , password} = req.body;
@@ -22,8 +23,14 @@ const LoginCheck = async (req , res)=>{
     });
     }
     const token = jwt.sign({username : document.username , user_id : document._id} , process.env.JWT_SIGN , {expiresIn:'1d'} );
-    res.json({success: true , token:token});
+    res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions);
+    res.json({success: true});
     console.log("login success")
+}
+
+const Logout = async (req, res) => {
+    res.clearCookie(AUTH_COOKIE_NAME, clearAuthCookieOptions);
+    res.json({success: true});
 }
 
 
@@ -58,4 +65,4 @@ const Register = async (req , res)=>{
     const entry = await User.create({username : username.toLowerCase() , password : hash_pass , email : email})
     res.json({success:true , entry:entry});
 }
-module.exports = {LoginCheck  , Register};
+module.exports = {LoginCheck, Register, Logout};

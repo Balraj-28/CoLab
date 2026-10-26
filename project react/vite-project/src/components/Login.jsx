@@ -42,8 +42,6 @@ function Login() {
             try{
             const res = await axios.post("/api/login" , {"username" : userName , "password" : password});
             if(res.data.success){
-                const token = res.data.token;
-                localStorage.setItem("token" , token);
                  Navigate("/home");
             }
             else{

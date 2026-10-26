@@ -46,9 +46,12 @@ function Home() {
     const { scrollYProgress } = useScroll();
     const progress = useSpring(scrollYProgress, { stiffness: 200, damping: 30 });
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        navigate('/login', { replace: true });
+    const logout = async () => {
+        try {
+            await axios.post('/api/logout');
+        } finally {
+            navigate('/login', { replace: true });
+        }
     }
 
     const [roomId, setRoomId] = useState('');
@@ -72,14 +75,11 @@ function Home() {
     const [expandedStep, setExpandedStep] = useState(null);
 
     const newRoom = async () => {
-        const token = localStorage.getItem('token');
         const res = await axios.post('/api/rooms', {
             password: password,
             title: title || "Untitled room",
             description: description,
             membersLimit: membersLimit
-        }, {
-            headers: { 'Authorization': `Bearer ${token}` }
         });
         setPassword("");
         setTitle("");
@@ -92,10 +92,7 @@ function Home() {
 
     const JoinRoom = async (roomId) => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post('/api/rooms/join', { roomCode: roomId, password: key }, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const res = await axios.post('/api/rooms/join', { roomCode: roomId, password: key });
             if (res.data.success === true) {
                 navigate(`/room/${roomId}`);
                 setKey("");
@@ -137,9 +134,7 @@ function Home() {
     }
 
     const GetRooms = async () => {
-        const res = await axios.get('/api/rooms', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
+        const res = await axios.get('/api/rooms');
         const sorted = [...res.data].sort((a, b) => b.members.length - a.members.length);
         setRooms(sorted);
         setOpenPage(0);
@@ -147,16 +142,12 @@ function Home() {
     }
 
     const GetMe = async () => {
-        const res = await axios.get('/api/users/me', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
+        const res = await axios.get('/api/users/me');
         setMe(res.data);
     }
 
     const GetStats = async () => {
-        const res = await axios.get('/api/users/me/stats', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
+        const res = await axios.get('/api/users/me/stats');
         setStats(res.data);
     }
 
